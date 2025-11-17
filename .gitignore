@@ -1,0 +1,48 @@
+# --- Python (Backend) ---
+
+# 1. Ambientes Virtuais (VENV)
+venv/
+.venv/
+env/
+*.venv
+
+# 2. Cache de Bytecode
+__pycache__/
+*.pyc
+
+# 3. Pacotes e Distribuição
+build/
+dist/
+*.egg-info/
+
+# 4. Cache de Testes (Ex: Pytest)
+.pytest_cache/
+.coverage
+
+# --- Segredos e Configurações Locais ---
+
+# 5. Arquivos de Variáveis de Ambiente
+.env
+.env.*
+
+# --- Arquivos de OS (Windows, macOS, Linux) ---
+# Lixo do sistema operacional
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# --- IDEs e Editores de Código ---
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# --- Arquivos de Log ---
+*.log
+logs/
