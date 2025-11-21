@@ -1,0 +1,12 @@
+[tool.taskipy.tasks]
+# O comando 'run' entra na pasta backend e inicia o servidor
+run = "cd backend && uvicorn app.main:app --reload"
+
+# O comando 'install' instala dependências
+install = "pip install -r backend/requirements.txt"
+
+# abrir o html 
+open = "start frontend/index.html"
+
+#precisa instalar taskipy antes de usar (pip install taskipy)
+#exemplo de comando: task run 
