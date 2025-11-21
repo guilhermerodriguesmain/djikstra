@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Rotas Djikstra</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>ROTAS DJIKSTRA</h1>
+
+    <div class="map-container">
+        <svg id="graph-svg" viewBox="0 0 600 300"></svg>
+    </div>
+
+    <div class="bottom-panel">
+        
+        <div class="controls-box">
+            <div class="section">
+                <h3>NOVO MAPA</h3>
+                <p class="instruction">Insira a matriz ou gere aleatório:</p>
+                
+                <button onclick="generateRandomGraph()" class="btn-random">
+                    🎲 Gerar Aleatório
+                </button>
+
+                <textarea id="matrix-input" placeholder="Ex: 0,1,0; 0,0,2; 1,0,0"></textarea>
+                <button onclick="updateGraph()">Carregar Texto Manual</button>
+            </div>
+
+            <div class="section" style="border-top: 2px solid black; margin-top: 10px; padding-top: 10px;">
+                <h3>SELECIONAR ROTA</h3>
+                <div class="route-inputs">
+                    <div>
+                        <label>PARTIDA</label>
+                        <select id="start-node"></select>
+                    </div>
+                    <div>
+                        <label>DESTINO</label>
+                        <select id="end-node"></select>
+                    </div>
+                </div>
+                <button class="btn-calc" onclick="calculateRoute()">CALCULAR CAMINHO</button>
+            </div>
+            <div id="result-display"></div>
+        </div>
+
+        <div class="matrix-box">
+            <h3>MATRIZ (EDITÁVEL)</h3>
+            <p class="instruction">Clique nos números para editar pesos:</p>
+            <table id="matrix-table">
+                </table>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,234 @@
+@import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&display=swap');
+
+/* Reset básico para garantir responsividade */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Patrick Hand', cursive, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f9f9f9;
+    font-size: 18px;
+    margin: 0;
+    padding: 20px; /* Espaço nas bordas para mobile */
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: clamp(2rem, 5vw, 3rem); /* Texto escala conforme a tela */
+    margin: 10px 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-align: center;
+}
+
+/* --- Mapa (SVG) --- */
+.map-container {
+    width: 100%;
+    max-width: 800px; /* Trava no tamanho máximo de PC */
+    aspect-ratio: 2 / 1; /* Mantém proporção retangular */
+    border: 3px solid black;
+    background: white;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* Evita vazamento */
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* --- Painel Inferior --- */
+.bottom-panel {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 800px;
+    /* Removemos height fixa para deixar crescer se precisar */
+}
+
+/* --- Caixas (Controles e Matriz) --- */
+.controls-box, .matrix-box {
+    flex: 1; /* Ocupam o mesmo espaço */
+    border: 3px solid black;
+    padding: 15px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Impede que o flex item estoure o container */
+}
+
+/* --- Inputs e Botões --- */
+.section {
+    margin-bottom: 15px;
+}
+
+textarea {
+    width: 100%;
+    height: 50px;
+    border: 2px solid black;
+    font-family: monospace;
+    margin-bottom: 8px;
+    resize: vertical;
+}
+
+/* Container dos Selects */
+.route-inputs {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Permite quebrar linha se a tela for muito pequena */
+}
+
+.route-inputs > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+select {
+    border: 2px solid black;
+    padding: 8px;
+    font-size: 16px;
+    background: white;
+    width: 100%;
+}
+
+button {
+    background: black;
+    color: white;
+    border: none;
+    padding: 12px; /* Mais espaço para toque em mobile */
+    cursor: pointer;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 16px;
+    text-transform: uppercase;
+    width: 100%;
+    border-radius: 4px; /* Leve arredondamento */
+    transition: background 0.2s;
+}
+
+button:hover {
+    background: #333;
+}
+
+.btn-random {
+    background-color: #444;
+    margin-bottom: 10px;
+}
+
+.btn-calc {
+    background-color: #000;
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+#result-display {
+    margin-top: 15px;
+    font-weight: bold;
+    font-size: 1.2rem;
+    text-align: center;
+    padding: 10px;
+    background: #eee;
+    border-radius: 4px;
+}
+
+/* --- Tabela (Responsiva com Scroll) --- */
+.matrix-box {
+    overflow: hidden; /* Previne que a caixa cresça demais */
+}
+
+.table-container {
+    width: 100%;
+    overflow-x: auto; /* Cria scroll lateral APENAS na tabela se precisar */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 5px;
+    min-width: 200px; /* Garante um tamanho mínimo */
+}
+
+td, th {
+    border: 1px solid black;
+    text-align: center;
+    height: 35px;
+    min-width: 35px; /* Tamanho mínimo para toque */
+}
+
+th {
+    background-color: #eee;
+}
+
+.matrix-input {
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-family: 'Patrick Hand', cursive;
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    font-weight: bold;
+    outline: none;
+    min-width: 30px;
+}
+
+.matrix-input:focus {
+    background-color: #fff3cd;
+}
+
+.instruction {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0 0 8px 0;
+}
+
+/* --- Estilos SVG --- */
+.node-circle { fill: white; stroke: black; stroke-width: 2px; }
+.node-text { font-size: 16px; font-weight: bold; fill: black; text-anchor: middle; dominant-baseline: central; }
+.edge-line { stroke: black; stroke-width: 1.5px; marker-end: url(#arrowhead); }
+.edge-text { font-size: 14px; fill: #444; font-weight: bold; }
+
+/* Destaques */
+.highlight-node { fill: #FF0000 !important; stroke: #8B0000 !important; fill-opacity: 0.2; }
+g.highlight-group circle { fill: #FF0000 !important; stroke: #550000 !important; }
+g.highlight-group text { fill: white !important; }
+.highlight-edge { stroke: #FF0000 !important; stroke-width: 4px !important; }
+
+/* =========================================
+   RESPONSIVIDADE (MEDIA QUERIES)
+   ========================================= */
+
+/* Tablet e Celular (Telas menores que 768px) */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .bottom-panel {
+        flex-direction: column; /* Empilha os painéis verticalmente */
+        height: auto; /* Altura automática */
+    }
+
+    .controls-box, .matrix-box {
+        width: 100%; /* Ocupa largura total */
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+    
+    .map-container {
+        /* Permite que o mapa fique um pouco mais alto no mobile se precisar */
+        min-height: 250px; 
+    }
+}
