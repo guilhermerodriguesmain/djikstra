@@ -1,6 +1,6 @@
 import heapq
 import random as rnd
-import strind as str
+import string as str
 import networkx as nx
 import matplotlib.pyplot as plt
 from collections import defaultdict
