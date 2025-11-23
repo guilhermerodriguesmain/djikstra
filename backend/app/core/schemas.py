@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
-class MatrixInput(BaseModel):
-    matrix_text: str
-
-class RouteInput(BaseModel):
+class DijkstraRequest(BaseModel):
     start: str
     end: str
+    
+class InsertRandomOut(BaseModel):
+    __root__: dict[str, dict[str, dict[str, int]]]

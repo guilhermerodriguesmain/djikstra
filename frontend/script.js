@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "http://127.0.0.1/:8000";
 const imgElement = document.getElementById('graph-img');
 
 //-------------------------busca o grafo padrão
@@ -6,20 +6,18 @@ fetchGraph();
 
 //----------------------------------------------------------------------------------------------API
 //------------------------------------------------------------busca dados iniciais
-async function fetchGraph() {
+async function fetchGraph(){
     try {
-        const res = await fetch(`${API_URL}/graph`);
+        const res = await fetch(`${API_URL}/core/graph`);
         const data = await res.json();
-        render(data);
+        render(data.graph);
     } catch (error) {
-        console.error("Erro ao buscar grafo:", error);
-    }
-}
-
+        alert("Erro ao buscar o grafo inicial");
+    }}
 //--------------------------------------------------------------Gera mapa aleatório
 async function generateRandomGraph() {
     try {
-        const res = await fetch(`${API_URL}/random-map`, { method: 'POST' });
+        const res = await fetch(`${API_URL}/core/graph`, { method: 'POST' });
         const data = await res.json();
         render(data.graph);
         

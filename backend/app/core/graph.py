@@ -10,7 +10,7 @@ class Graph:
     def __init__(self):
         self.G = nx.Graph()## grafo vazio
         self.node_list = [] ## lista de tuplas (u,v,peso)
-        
+        self.adj = defaultdict(self.G.adj) ## dicionario de adjacencia
         
     def dijkstra(self, start, end): # melhoria ---- all_nodes = set(self.G.nodes) precisa receber node_list antes para preencher o grafo
         all_nodes = set(self.G.nodes)
@@ -55,9 +55,9 @@ class Graph:
             else:
                 self.node_list.append(((self.node_list[-1][1]), rnd.choice(letras), rnd.randint(1,10)))
                 self.G.add_weighted_edges_from(self.node_list)
-        return self.node_list
+        return self.adj
     
     def manual_insert_edges(self, edges):
         self.node_list.append(((self.node_list[-1][1]), edges, rnd.randint(1,25)))
         self.G.add_edge(self.node_list)
-        return self.node_list
+        return self.adj

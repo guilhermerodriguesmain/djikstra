@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from ..core.graph import Graph
+from ..core.schemas import InsertRandomOut
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -10,12 +11,12 @@ def manual_insert_edges(node):
     graph.manual_insert_edges(node) 
     return graph.nodes
 
-@router.get("/core/graph")  # endpoint para inserir arestas aleatoriamente
+@router.get("/core/graph", response_model=InsertRandomOut)  # endpoint para inserir arestas aleatoriamente
 def insert_random_edges():
-    edges = graph.insert_random_edges() 
-    return graph.nodes
+    graph.insert_random_edges() 
+    return 
 
-@router.post("/core/grph/{inicio}/{fim}")  # endpoint para calcular o menor caminho
+@router.post("/core/graph/{inicio}")  # endpoint para calcular o menor caminho
 def shortest_path(inicio: str, fim: str):
     distance, path = graph.dijkstra(inicio, fim)
     return {"distance": distance, "path": path}
