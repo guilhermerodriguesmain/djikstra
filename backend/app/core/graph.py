@@ -8,14 +8,11 @@ from collections import defaultdict
 
 class Graph:
     def __init__(self):
-        self.G = nx.Graph()
-        self.node_list = []
+        self.G = nx.Graph()## grafo vazio
+        self.node_list = [] ## lista de tuplas (u,v,peso)
         
         
-    def add_edge(self, u, v, weight):
-        self.G.add_edge(u, v, weight=weight)
-        
-    def dijkstra(self, start, end):
+    def dijkstra(self, start, end): # melhoria ---- all_nodes = set(self.G.nodes) precisa receber node_list antes para preencher o grafo
         all_nodes = set(self.G.nodes)
         distances = {node: float('inf') for node in all_nodes}
         distances[start] = 0
@@ -56,8 +53,11 @@ class Graph:
                 self.node_list.append((rnd.choice(letras), rnd.choice(letras), rnd.randint(1,10)))
                 self.G.add_weighted_edges_from(self.node_list)
             else:
-                self.node_list.append((self.node_list[-1], rnd.choice(letras), rnd.randint(1,10)))
+                self.node_list.append(((self.node_list[-1][1]), rnd.choice(letras), rnd.randint(1,10)))
                 self.G.add_weighted_edges_from(self.node_list)
         return self.node_list
     
-    
+    def manual_insert_edges(self, edges):
+        self.node_list.append(((self.node_list[-1][1]), edges, rnd.randint(1,25)))
+        self.G.add_edge(self.node_list)
+        return self.node_list
