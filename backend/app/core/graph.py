@@ -1,17 +1,28 @@
-# cria grafo e implementa algoritmo de Dijkstra
+# implementa classe Grafo nao direcionado e ponderado
+'''
+usa as seguintes bibliotecas:
+networkx
+matplotlib.pyplot
 
-class Graph:
-    def __init__(self, size):
-        self.size = size # numero de vértices
-        self.adj_matrix = [[0]* size for _ in range(size)] # adiciona todas as arestas e seus pesos
-        self.vertex_data = ['']*size # nome dos vértices
+métodos: 
+'''
+
+import heapq
+import networkx as nx
+import matplotlib.pyplot as plt
+
+class Grafo:
+    G = nx.Graph()
+    grafo ={
         
-    def add_edge(self, u, v, weight):
-        if 0 <= u < self.size and 0 <= v < self.size:
-            self.adj_matrix[u][v] = weight
-            self.adj_matrix[v][u] = weight # grafo não direcionado
+    }
+    def adicionar_no(self, no):
+        self.G.add_node(no)
+        
+    def adicionar_nos(self, lista_nos):
+        self.G.add_nodes_from(lista_nos)
+        
+    def adicionar_arestas(self, a, b, peso):
+        self.G.add_edge(a,b, weight=peso)
+        
     
-    def set_vertex_data(self, vertex, data):
-        if 0 <= vertex < self.size:
-            self.vertex_data[vertex] = data
-                    

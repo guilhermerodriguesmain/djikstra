@@ -1,14 +1,23 @@
+
 # --- Python (Backend) ---
 
 # 1. Ambientes Virtuais (VENV)
 venv/
 .venv/
 env/
+ENV/
 *.venv
 
 # 2. Cache de Bytecode
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
 
 # 3. Pacotes e Distribuição
 build/
@@ -46,3 +55,9 @@ desktop.ini
 # --- Arquivos de Log ---
 *.log
 logs/
+
+# --- Arquivos Específicos do Projeto ---
+teste.py
+graph.py
+grafo-animado.py
+grafo_simples.py
