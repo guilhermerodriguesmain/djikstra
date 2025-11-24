@@ -1,4 +1,4 @@
-import heapq
+
 import random as rnd
 import string as str
 import networkx as nx
@@ -9,42 +9,13 @@ from collections import defaultdict
 class Graph:
     def __init__(self):
         self.G = nx.Graph()## grafo vazio
-        self.node_list = [] ## lista de tuplas (u,v,peso)
+        self.node_list = [self.G.edges] ## lista de tuplas (u,v,peso)
         self.adj = defaultdict(self.G.adj) ## dicionario de adjacencia
         
-    def dijkstra(self, start, end): # melhoria ---- all_nodes = set(self.G.nodes) precisa receber node_list antes para preencher o grafo
-        all_nodes = set(self.G.nodes)
-        distances = {node: float('inf') for node in all_nodes}
-        distances[start] = 0
-        queue = [(0, start)]
-        previous_nodes = {}
-
-        while queue:
-            current_distance, current_node = heapq.heappop(queue)
-
-            if current_distance > distances[current_node]:
-                continue
-
-            if current_node == end:
-                break
-
-            for neighbor in self.G.neighbors(current_node):
-                weight = self.G[current_node][neighbor]['weight']
-                distance = current_distance + weight
-                if distance < distances[neighbor]:
-                    distances[neighbor] = distance
-                    previous_nodes[neighbor] = current_node
-                    heapq.heappush(queue, (distance, neighbor))
-
-        path = []
-        node = end
-        while node != start:
-            path.append(node)
-            node = previous_nodes[node]
-        path.append(start)
-        path.reverse()
-
-        return distances[end], path
+    def shortest_path(self,start, end):
+        route = nx.dijkstra_path(self.G, start, end, weight='weight')
+        weigth = nx.dijkstra_path_length(self.G, start, end, weight='weight')
+        return route, weigth
     
     def random_edges(self,G):
         edges = []
@@ -77,7 +48,7 @@ class Graph:
 
         self.G.add_edges_from(edges)
         return self.G.edges(data=True)
-    def manual_insert_edges(self, edges):
+    def add_edges(self, edges):
         self.node_list.append(((self.node_list[-1][1]), edges, rnd.randint(1,25)))
         self.G.add_edge(self.node_list)
-        return self.adj
+        return self.G.edges(data=True)
