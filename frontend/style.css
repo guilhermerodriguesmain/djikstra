@@ -45,6 +45,12 @@ svg {
     display: block;
 }
 
+#graph-img {
+    max-width: 100%;
+    height: auto;
+    display: block; /* Remove espaços brancos extras abaixo da imagem */
+}
+
 /* --- Painel Inferior --- */
 .bottom-panel {
     display: flex;

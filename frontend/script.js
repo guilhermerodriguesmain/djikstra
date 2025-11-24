@@ -1,196 +1,132 @@
 const API_URL = "http://localhost:8000";
-const svg = document.getElementById('graph-svg');
+const imgElement = document.getElementById('graph-img');
 
-// Inicializa
+// Inicializa buscando o grafo padrão
 fetchGraph();
 
-// Busca dados iniciais
+// --- Funções de API ---
+
+// 1. Busca dados iniciais
 async function fetchGraph() {
-    const res = await fetch(`${API_URL}/graph`);
-    const data = await res.json();
-    render(data);
+    try {
+        const res = await fetch(`${API_URL}/graph`);
+        const data = await res.json();
+        render(data);
+    } catch (error) {
+        console.error("Erro ao buscar grafo:", error);
+    }
 }
 
-// Gera mapa aleatório
+// 2. Gera mapa aleatório
 async function generateRandomGraph() {
-    const res = await fetch(`${API_URL}/random-map`, { method: 'POST' });
-    const data = await res.json();
-    render(data.graph);
+    try {
+        const res = await fetch(`${API_URL}/random-map`, { method: 'POST' });
+        const data = await res.json();
+        render(data.graph);
+        
+        // Limpa mensagens de resultado antigo
+        document.getElementById('result-display').innerText = "";
+    } catch (error) {
+        alert("Erro ao gerar mapa aleatório");
+    }
 }
 
-// Atualiza via Texto Manual
+// 3. Atualiza via Texto Manual (Textarea)
 async function updateGraph() {
     const text = document.getElementById('matrix-input').value;
     if(!text) return alert("Digite a matriz!");
 
-    const res = await fetch(`${API_URL}/update-map`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ matrix_text: text })
-    });
-    const data = await res.json();
-    if(data.status === 'ok') {
-        render(data.graph);
-    } else {
-        alert("Erro no formato da matriz");
+    try {
+        const res = await fetch(`${API_URL}/update-map`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ matrix_text: text })
+        });
+        const data = await res.json();
+        
+        if(data.status === 'ok') {
+            render(data.graph);
+            document.getElementById('result-display').innerText = "";
+        } else {
+            alert("Erro no formato da matriz: " + data.message);
+        }
+    } catch (error) {
+        console.error(error);
     }
 }
 
-// Calcula rota Dijkstra
+// 4. Calcula Rota (Dijkstra)
 async function calculateRoute() {
     const start = document.getElementById('start-node').value;
     const end = document.getElementById('end-node').value;
 
-    const res = await fetch(`${API_URL}/calculate`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ start, end })
-    });
-    const result = await res.json();
-    
-    const display = document.getElementById('result-display');
+    try {
+        const res = await fetch(`${API_URL}/calculate`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ start, end })
+        });
+        
+        // A resposta agora contém: { result: {...}, graph: {...} }
+        // 'graph' traz a imagem já pintada de vermelho pelo Python
+        const data = await res.json();
+        const result = data.result;
 
-    if(result.distance === -1) {
-        display.innerText = "Sem caminho possível!";
-        display.style.color = "red";
-        clearHighlights();
-        return;
+        const display = document.getElementById('result-display');
+
+        if(result.distance === -1) {
+            display.innerText = "Sem caminho possível!";
+            display.style.color = "red";
+        } else {
+            display.innerText = `Distância Mínima: ${result.distance}`;
+            display.style.color = "black";
+        }
+
+        // Renderiza o grafo que veio na resposta (com o destaque visual)
+        render(data.graph);
+
+    } catch (error) {
+        console.error("Erro ao calcular rota:", error);
+    }
+}
+
+// --- Funções de Renderização e UI ---
+
+// Função Central: Recebe os dados do Python e atualiza a tela
+function render(data) {
+    // 1. Atualiza a Imagem (O Python manda string Base64)
+    if (data.image) {
+        imgElement.src = data.image;
     }
 
-    display.innerText = `Distância Mínima: ${result.distance}`;
-    display.style.color = "black";
-    highlightPath(result.path);
-}
+    // 2. Atualiza os Dropdowns de seleção
+    populateDropdowns(data.nodes);
 
-// ============================================
-// Lógica de Renderização e Tabelas
-// ============================================
+    // 3. Atualiza a Tabela Editável
+    renderMatrixTable(data.nodes, data.matrix);
 
-function render(data) {
-    const nodes = data.nodes;
-    const edges = data.edges;
-    const matrix = data.matrix;
-
-    // 1. Atualiza SVG
-    renderSVG(nodes, edges);
-
-    // 2. Atualiza Controles
-    populateDropdowns(nodes);
-
-    // 3. Atualiza Tabela Editável
-    renderMatrixTable(nodes, matrix);
-
-    // 4. Atualiza Textarea para manter sincronicidade
-    updateTextareaFromData(matrix);
-}
-
-function renderSVG(nodes, edges) {
-    svg.innerHTML = `
-        <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" 
-            refX="19" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-            </marker>
-        </defs>
-    `;
-    
-    const centerX = 300, centerY = 150, radius = 100;
-    const positions = {};
-    const angleStep = (2 * Math.PI) / nodes.length;
-
-    // Calcula Posições
-    nodes.forEach((node, i) => {
-        const angle = i * angleStep - (Math.PI / 2); 
-        positions[node] = {
-            x: centerX + radius * Math.cos(angle),
-            y: centerY + radius * Math.sin(angle)
-        };
-    });
-
-    // Desenha Arestas
-    nodes.forEach(source => {
-        if(edges[source]) {
-            Object.entries(edges[source]).forEach(([target, weight]) => {
-                const p1 = positions[source];
-                const p2 = positions[target];
-                
-                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                line.setAttribute("x1", p1.x);
-                line.setAttribute("y1", p1.y);
-                line.setAttribute("x2", p2.x);
-                line.setAttribute("y2", p2.y);
-                line.setAttribute("class", "edge-line");
-                line.id = `edge-${source}-${target}`;
-                svg.appendChild(line);
-
-                // Peso da aresta
-                const midX = (p1.x + p2.x) / 2;
-                const midY = (p1.y + p2.y) / 2;
-                
-                // Fundo branco para o texto
-                const textBg = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-                textBg.setAttribute("x", midX - 5);
-                textBg.setAttribute("y", midY - 10);
-                textBg.setAttribute("width", 10);
-                textBg.setAttribute("height", 14);
-                textBg.setAttribute("fill", "white");
-                svg.appendChild(textBg);
-
-                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-                text.setAttribute("x", midX);
-                text.setAttribute("y", midY);
-                text.setAttribute("class", "edge-text");
-                text.setAttribute("text-anchor", "middle");
-                text.setAttribute("dominant-baseline", "middle");
-                text.textContent = weight;
-                svg.appendChild(text);
-            });
-        }
-    });
-
-    // Desenha Nós (Grupo para facilitar destaque)
-    nodes.forEach(node => {
-        const pos = positions[node];
-        
-        const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
-        g.id = `node-group-${node}`;
-
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("cx", pos.x);
-        circle.setAttribute("cy", pos.y);
-        circle.setAttribute("r", 16);
-        circle.setAttribute("class", "node-circle");
-        g.appendChild(circle);
-
-        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        text.setAttribute("x", pos.x);
-        text.setAttribute("y", pos.y);
-        text.setAttribute("class", "node-text");
-        text.textContent = node;
-        g.appendChild(text);
-
-        svg.appendChild(g);
-    });
+    // 4. Mantém o Textarea sincronizado
+    updateTextareaFromData(data.matrix);
 }
 
 function renderMatrixTable(nodes, matrix) {
     const table = document.getElementById('matrix-table');
     table.innerHTML = '';
 
-    // Header
+    // Cabeçalho (A, B, C...)
     const thead = table.insertRow();
-    thead.insertCell(); 
+    thead.insertCell(); // Célula vazia no canto
     nodes.forEach(n => {
         const th = document.createElement('th');
         th.textContent = n;
         thead.appendChild(th);
     });
 
-    // Body
+    // Corpo da Tabela
     matrix.forEach((row, i) => {
         const tr = table.insertRow();
         
-        // Label lateral
+        // Rótulo da linha
         const thRow = document.createElement('th');
         thRow.textContent = nodes[i];
         tr.appendChild(thRow);
@@ -198,6 +134,7 @@ function renderMatrixTable(nodes, matrix) {
         row.forEach((val, j) => {
             const td = tr.insertCell();
             
+            // Diagonal principal bloqueada
             if (i === j) {
                 td.textContent = '-';
                 td.style.backgroundColor = "#ddd";
@@ -210,7 +147,7 @@ function renderMatrixTable(nodes, matrix) {
             input.min = 0;
             input.className = "matrix-input";
             
-            // Salva automaticamente ao mudar
+            // Salva automaticamente ao mudar o valor e sair do campo
             input.onchange = () => saveFromTable(nodes.length);
             
             td.appendChild(input);
@@ -218,14 +155,14 @@ function renderMatrixTable(nodes, matrix) {
     });
 }
 
-// Pega dados da tabela e atualiza o mapa
+// Pega os dados da tabela HTML e envia para o backend
 async function saveFromTable(size) {
     const table = document.getElementById('matrix-table');
     const rows = table.querySelectorAll('tr');
     
     let matrixRows = [];
 
-    // Começa do índice 1 (pula header)
+    // Começa de i=1 pois a linha 0 é o cabeçalho
     for (let i = 1; i <= size; i++) {
         let cols = [];
         const inputs = rows[i].querySelectorAll('input');
@@ -233,7 +170,7 @@ async function saveFromTable(size) {
         let inputIndex = 0;
         for (let j = 0; j < size; j++) {
             if (i - 1 === j) { 
-                cols.push(0); // Diagonal é sempre 0
+                cols.push(0); // Diagonal
             } else {
                 const val = inputs[inputIndex].value;
                 cols.push(val === "" ? 0 : parseInt(val));
@@ -245,22 +182,28 @@ async function saveFromTable(size) {
 
     const matrixText = matrixRows.join(';');
 
-    // Atualiza backend
-    const res = await fetch(`${API_URL}/update-map`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ matrix_text: matrixText })
-    });
-    
-    const data = await res.json();
-    if(data.status === 'ok') {
-        // Atualiza visual (Textarea e SVG) sem perder estado
-        updateTextareaFromData(data.graph.matrix);
-        renderSVG(data.graph.nodes, data.graph.edges);
+    // Envia para o backend atualizar
+    try {
+        const res = await fetch(`${API_URL}/update-map`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ matrix_text: matrixText })
+        });
         
-        // Se já tinha uma rota calculada, limpa o destaque pois o mapa mudou
-        clearHighlights(); 
-        document.getElementById('result-display').innerText = "";
+        const data = await res.json();
+        if(data.status === 'ok') {
+            // Atualiza a imagem e o textarea, mas mantém a tabela como está
+            // para não perder o foco do usuário (opcionalmente poderia chamar render total)
+            if (data.graph.image) {
+                imgElement.src = data.graph.image;
+            }
+            updateTextareaFromData(data.graph.matrix);
+            
+            // Limpa resultado anterior pois o mapa mudou
+            document.getElementById('result-display').innerText = "";
+        }
+    } catch (error) {
+        console.error("Erro ao salvar tabela:", error);
     }
 }
 
@@ -273,7 +216,6 @@ function populateDropdowns(nodes) {
     const startSel = document.getElementById('start-node');
     const endSel = document.getElementById('end-node');
     
-    // Salva seleção atual se possível
     const oldStart = startSel.value;
     const oldEnd = endSel.value;
 
@@ -285,44 +227,7 @@ function populateDropdowns(nodes) {
         endSel.add(new Option(n, n));
     });
 
+    // Tenta manter a seleção anterior se o nó ainda existir
     if(nodes.includes(oldStart)) startSel.value = oldStart;
     if(nodes.includes(oldEnd)) endSel.value = oldEnd;
-}
-
-function clearHighlights() {
-    // 1. Remove a classe de grupos de nós (círculo + texto)
-    document.querySelectorAll('.highlight-group').forEach(el => {
-        el.classList.remove('highlight-group');
-    });
-
-    // 2. Remove a classe das arestas (linhas)
-    document.querySelectorAll('.highlight-edge').forEach(el => {
-        el.classList.remove('highlight-edge');
-    });
-
-    // 3. (Segurança extra) Remove de nós soltos caso existam
-    document.querySelectorAll('.highlight-node').forEach(el => {
-        el.classList.remove('highlight-node');
-    });
-}
-
-function highlightPath(path) {
-    clearHighlights();
-
-    // Destaca nós (adiciona classe ao grupo)
-    path.forEach(node => {
-        const g = document.getElementById(`node-group-${node}`);
-        if(g) g.classList.add('highlight-group');
-    });
-
-    // Destaca arestas
-    for(let i = 0; i < path.length - 1; i++) {
-        const u = path[i];
-        const v = path[i+1];
-        // Tenta encontrar aresta U->V ou V->U (se for bidirecional, mas nosso grafo é dirigido visualmente)
-        let edge = document.getElementById(`edge-${u}-${v}`);
-        if(!edge) edge = document.getElementById(`edge-${v}-${u}`);
-        
-        if(edge) edge.classList.add('highlight-edge');
-    }
 }
