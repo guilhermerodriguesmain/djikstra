@@ -1,22 +1,35 @@
-from fastapi import APIRouter
+# backend/app/api/router.py
+from fastapi import APIRouter, Depends, Request, HTTPException
 from ..core.graph import Graph
-from ..core.schemas import InsertRandomOut
-from pydantic import BaseModel
+from ..core import schemas
 
-router = APIRouter()
-graph = Graph()
+router = APIRouter(prefix="/api", tags=["graph"])
 
-@router.post("/core/graph/{node}")  # endpoint para inserir arestas manualmente
-def manual_insert_edges(node):
-    graph.manual_insert_edges(node) 
-    return graph.nodes
+def get_graph(request: Request) -> Graph:
+    return request.app.state.Graph
 
-@router.get("/core/graph", response_model=InsertRandomOut)  # endpoint para inserir arestas aleatoriamente
-def insert_random_edges():
-    graph.insert_random_edges() 
-    return 
 
-@router.post("/core/graph/{inicio}")  # endpoint para calcular o menor caminho
-def shortest_path(inicio: str, fim: str):
-    distance, path = graph.dijkstra(inicio, fim)
-    return {"distance": distance, "path": path}
+@router.get("/graph/random", response_model=schemas.GraphRandomResponse)
+def random_graph():
+    graph = Graph()
+    graph.random_edges()
+    for u, v, data in graph.G.edges(data=True): 
+        edge_list = {"u": u, "v": v, "weight": data.get("weight")}
+    return {edge_list}
+
+@router.post("/graph/add-edge", response_model=schemas.GraphRandomResponse)
+def add_edge(req: schemas.AddEdgeRequest, graph: Graph = Depends(get_graph)):
+    graph.add_edge(req.u, req.v, req.weight)
+    return {"nodes": graph.get_nodes(), "edges": graph.get_edges()}
+
+@router.post("/graph/shortest/{source}/{target}", response_model=schemas.PathResponse)
+def shortest(req: schemas.PathRequest, graph: Graph = Depends(get_graph)):
+    try:
+        path, dist = graph.shortest_path(req.source, req.target)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    return {"source": req.source, "target": req.target, "distance": dist, "path": path}
+
+@router.get("/graph", response_model=schemas.GraphRandomResponse)
+def get_graph_full(graph:Graph = Depends(get_graph)):
+    return {"nodes": graph.get_nodes(), "edges": graph.get_edges()}
