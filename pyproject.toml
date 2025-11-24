@@ -11,5 +11,8 @@ open = "start /frontend/index.html"
 # abrir o html no linux
 openl = "xdg-open frontend/index.html"
 
+# Executar testes do backend
+test = "cd backend && pytest -v -s"
+
 #precisa instalar taskipy antes de usar através do requirements.txt ou com o comando: pip install taskipy
 #exemplo de comando: task run 

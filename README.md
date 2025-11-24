@@ -23,32 +23,37 @@
 ```text
 /dijkstra/
 │
-├── .gitignore             <-- (Ignora arquivos desnecessários, como 'venv')
-├── README.md              <-- (Este arquivo que você está lendo)
-│── /docs/                 <-- (documentação)
+├── .gitignore             <-- Ignora arquivos desnecessários ('venv' e configurações da IDE)
+├── README.md              <-- Este arquivo que você está lendo
 ├── pyproject.toml         <-- Configurações e atalhos (Taskipy)
 │
-├── /backend/              <-- (Toda a lógica da API FastAPI)
+├── venv/                <-- Ambiente virtual do Python - ignorado pelo .gitignore
+│── /docs/                 <-- Documentação
+│
+├── /backend/              <-- Toda a lógica da API FastAPI
 │   │
 │   ├── /app/
 │   │   │
 │   │   ├── /api/
-│   │   │   └── routes.py    <-- (Define os endpoints: /calculate-path, /graph-data)
+│   │   │   └── routes.py    <-- Define os endpoints (/calculate-path, /graph-data)
 │   │   │
 │   │   ├── /core/
-│   │   │   ├── graph.py     <-- (Classes 'Graph' e a lógica Dijkstra)
-│   │   │   └── schemas.py   <-- (Modelos Pydantic)
+│   │   │   ├── graph.py     <-- Classes 'Graph' e a lógica Dijkstra
+│   │   │   └── schemas.py   <-- Modelos Pydantic
 │   │   │
-│   │   └── main.py          <-- (Ponto de entrada da aplicação FastAPI)
+│   │   ├── main.py          <-- Ponto de entrada da aplicação FastAPI
+│   │   │
+│   │── /tests/            <-- pastas de arquivos de testes (pytest)
+│   │   ├── __init__.py    
+│   │   └── test_main.py   <-- Código dos testes
 │   │
-│   ├── venv/                <-- (Ambiente virtual do Python - ignorado pelo .gitignore)
-│   └── requirements.txt     <-- (Lista de dependências, ex: 'fastapi', 'uvicorn')
+│   └── requirements.txt     <-- Lista de dependências, ex: 'fastapi', 'uvicorn'
 │
-└── /frontend/             <-- (Toda a parte visual e interativa)
+└── /frontend/             <-- Toda a parte visual e interativa
     │
-    ├── index.html           <-- (A estrutura da página web)
-    ├── style.css            <-- (Estilos: cores dos nós, layout, etc.)
-    └── script.js            <-- (Lógica do cliente: fetch para a API) 
+    ├── index.html           <-- Estrutura da página web
+    ├── style.css            <-- Estilos: cores dos nós, layout, etc.
+    └── script.js            <-- Lógica do cliente: fetch para a API 
 
 ```
 
@@ -108,23 +113,26 @@ Você pode também utilizar os atalhos do task
 ## Tecnologias Utilizadas
 
 ### Backend
-* FastAPI: Framework moderno e rápido para construção da API.
+* **FastAPI**: Framework moderno e rápido para construção da API.
 
-* Uvicorn: Servidor ASGI para produção.
+* **Uvicorn**: Servidor ASGI para produção.
 
-* NetworkX: Biblioteca poderosa para manipulação e estudo de grafos.
+* **NetworkX**: Biblioteca poderosa para manipulação e estudo de grafos.
 
-* Matplotlib: Utilizado para gerar a representação visual (imagem PNG) do grafo.
+* **Matplotlib**: Utilizado para gerar a representação visual (imagem PNG) do grafo.
 
-* Pydantic: Validação de dados e Schemas.
+* **Pydantic**: Validação de dados e Schemas.
 
 ### Frontend
-* HTML5 / CSS3: Layout responsivo (Flexbox) e estilização.
+* **HTML5 / CSS3**: Layout responsivo (Flexbox) e estilização.
 
-* JavaScript: Consumo da API via Fetch e manipulação do DOM.
+* **JavaScript**: Consumo da API via Fetch e manipulação do DOM.
 
 ### Ferramentas
-* Taskipy: Automação de comandos de terminal.
+
+* **Pytest:** Framework de testes unitários e de integração.
+* **Httpx:** Cliente HTTP usado para testar a API.
+* **Taskipy**: Automação de comandos de terminal.
 
 ## Arquitetura
 <ol>
@@ -137,3 +145,17 @@ Você pode também utilizar os atalhos do task
   <li>O Frontend apenas exibe a imagem.</li>
 </ol>
 
+## Testes
+Os testes do backend utilizam pytest e podem ser executados através do atalho task ou diretamente no terminal.
+
+```bash
+  # atalho task
+  task test
+
+  # comando manual
+  cd backend && pytest
+```
+
+*Resultado esperado*
+
+<img src="./docs/img/testes.png">
