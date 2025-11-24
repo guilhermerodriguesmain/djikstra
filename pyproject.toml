@@ -5,8 +5,11 @@ run = "cd backend && uvicorn app.main:app --reload"
 # O comando 'install' instala dependências
 install = "pip install -r backend/requirements.txt"
 
-# abrir o html 
-open = "start frontend/index.html"
+# abrir o html no windows
+open = "start /frontend/index.html"
 
-#precisa instalar taskipy antes de usar (pip install taskipy)
+# abrir o html no linux
+openl = "xdg-open frontend/index.html"
+
+#precisa instalar taskipy antes de usar através do requirements.txt ou com o comando: pip install taskipy
 #exemplo de comando: task run 
