@@ -34,7 +34,12 @@ async function generateRandomGraph() {
 // 3. Atualiza via Texto Manual (Textarea)
 async function updateGraph() {
     const text = document.getElementById('matrix-input').value;
-    if(!text) return alert("Digite a matriz!");
+    
+    const validation = validateMatrixInput(text);
+    if (!validation.valid) {
+        alert("Erro: " + validation.message);
+        return; // Para aqui e não envia nada ao servidor
+    }
 
     try {
         const res = await fetch(`${API_URL}/update-map`, {
@@ -230,4 +235,35 @@ function populateDropdowns(nodes) {
     // Tenta manter a seleção anterior se o nó ainda existir
     if(nodes.includes(oldStart)) startSel.value = oldStart;
     if(nodes.includes(oldEnd)) endSel.value = oldEnd;
+}
+
+//--------------------------------------------------- validação de dados de entrada
+function validateMatrixInput(text) {
+    // 1. Verificação de Segurança (Regex)
+    // Permite APENAS: Números (0-9), vírgula (,), ponto e vírgula (;), espaços e quebra de linha
+    const allowedPattern = /^[0-9,;\s]+$/;
+    
+    if (!allowedPattern.test(text)) {
+        return { valid: false, message: "A matriz contém caracteres inválidos! Use apenas números, vírgulas e ponto-e-vírgula." };
+    }
+
+    // 2. Verificação Estrutural (É uma matriz quadrada?)
+    const rows = text.split(';').filter(row => row.trim().length > 0);
+    if (rows.length === 0) return { valid: false, message: "A matriz está vazia." };
+
+    const numRows = rows.length;
+    
+    for (let i = 0; i < numRows; i++) {
+        const cols = rows[i].split(',').filter(col => col.trim().length > 0);
+        
+        // Verifica se cada linha tem o mesmo número de colunas que o total de linhas (NxN)
+        if (cols.length !== numRows) {
+            return { 
+                valid: false, 
+                message: `Erro na linha ${i+1}: A matriz deve ser quadrada (${numRows}x${numRows}). Encontrado ${cols.length} colunas.` 
+            };
+        }
+    }
+
+    return { valid: true };
 }
