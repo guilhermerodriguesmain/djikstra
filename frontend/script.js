@@ -152,12 +152,34 @@ function renderMatrixTable(nodes, matrix) {
             input.min = 0;
             input.className = "matrix-input";
             
-            // Salva automaticamente ao mudar o valor e sair do campo
-            input.onchange = () => saveFromTable(nodes.length);
+            // Ao mudar, chama uma função específica passando as coordenadas (i, j)
+            input.onchange = (e) => handleMatrixChange(e, i, j, nodes.length);
+            input.id = `matrix-cell-${i}-${j}`;
             
             td.appendChild(input);
         });
     });
+}
+
+function handleMatrixChange(event, row, col, size) {
+    const newValue = event.target.value;
+
+    // Acha a célula espelho (coluna vira linha, linha vira coluna)
+    const mirrorInput = document.getElementById(`matrix-cell-${col}-${row}`);
+
+    // Se a célula espelho existir, atualiza ela com o mesmo valor
+    if (mirrorInput) {
+        mirrorInput.value = newValue;
+        
+        // Efeito visual: piscar a célula espelhada para mostrar que mudou
+        mirrorInput.style.backgroundColor = "#e0f7fa"; // Azul claro
+        setTimeout(() => {
+            mirrorInput.style.backgroundColor = "transparent";
+        }, 500);
+    }
+
+    // Salva tudo e envia pro backend
+    saveFromTable(size);
 }
 
 // Pega os dados da tabela HTML e envia para o backend

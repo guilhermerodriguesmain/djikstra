@@ -10,52 +10,49 @@ plt.switch_backend('Agg')
 
 class Graph:
     def __init__(self):
-        # Lógica do seu colega: Usar NetworkX
         self.G = nx.Graph() 
         self.edges_list = []
 
     def shortest_path(self, start, end):
-        # Lógica do seu colega
         try:
             route = nx.dijkstra_path(self.G, start, end, weight='weight')
-            # Correção: 'weight' (inglês correto)
             length = nx.dijkstra_path_length(self.G, start, end, weight='weight')
             return route, length
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return [], -1
 
     def random_edges(self):
-        # Lógica do seu colega (adaptada para limpar o grafo antes, se quiser um novo)
-        self.clear() # Limpa para gerar um novo mapa limpo
+        self.clear() # Limpa o grafo anterior
         
-        edges = []
-        # Garante nós iniciais
-        if len(self.G.nodes) < 1:
-            # Usa letras maiúsculas aleatórias
-            nodes_pool = string.ascii_uppercase[:10] # Limita a A-J para não ficar gigante
-            a = rnd.choice(nodes_pool)
-            b = rnd.choice(nodes_pool)
-            while a == b: # Garante que não é laço
-                b = rnd.choice(nodes_pool)
+        # Define um tamanho aleatório (ex: entre 4 e 7 nós)
+        n_nodes = rnd.randint(4, 7)
+        
+        # Cria nomes SEQUENCIAIS: ['A', 'B', 'C', 'D', ...]
+        nodes = [chr(65 + i) for i in range(n_nodes)]
+        
+        # Adiciona os nós ao grafo (para garantir que existam mesmo sem arestas)
+        self.G.add_nodes_from(nodes)
+        
+        # Garante conexidade mínima (A liga com B, B liga com C...)
+        # Isso evita que fiquem nós isolados no mapa
+        for i in range(n_nodes - 1):
             w = rnd.randint(1, 30)
-            edges.append((a, b, {'weight': w}))
-
-        # Gera novas arestas
-        for _ in range(rnd.randint(4, 8)):
-            if not edges: break
+            self.G.add_edge(nodes[i], nodes[i+1], weight=w)
             
-            # Pega um nó existente para garantir conexidade
-            a = edges[-1][0] 
-            b = rnd.choice(string.ascii_uppercase[:10])
-            if a != b:
+        # Adiciona arestas extras aleatórias para criar ciclos e atalhos
+        # Tenta criar (n_nodes) conexões extras
+        for _ in range(n_nodes):
+            u = rnd.choice(nodes)
+            v = rnd.choice(nodes)
+            
+            # Se não for o mesmo nó e a aresta ainda não existir
+            if u != v and not self.G.has_edge(u, v):
                 w = rnd.randint(1, 30)
-                edges.append((a, b, {'weight': w}))
-        
-        self.G.add_edges_from(edges)
-        self.edges_list.extend(edges)
+                self.G.add_edge(u, v, weight=w)
+
         return self.G.edges(data=True)
 
-    # --- MÉTODOS DE SUPORTE (ADAPTADORES PARA O FRONTEND) ---
+    # -------------------------------------------------------------------- MÉTODOS DE SUPORTE (ADAPTADORES PARA O FRONTEND)
 
     def clear(self):
         self.G.clear()
